@@ -35,7 +35,8 @@ textarea{display:block;margin-top:14px;width:100%;min-height:144px;resize:vertic
 .action:not(:disabled):hover{background:#42352d}
 .action.secondary{color:var(--ink);background:transparent}
 .action.secondary:not(:disabled):hover{background:var(--mark)}
-form .action{width:100%}
+.entry-actions{display:flex;flex-wrap:wrap;gap:10px}
+.entry-actions .action{flex:1 1 auto}
 .live{flex:1;display:grid;grid-template-columns:minmax(0,1fr) clamp(255px,25vw,385px);min-height:0}
 .stage{position:relative;isolation:isolate;min-width:0;padding:clamp(22px,3.8vw,52px) clamp(20px,4.7vw,72px) clamp(22px,3vw,40px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .celebration{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:-1}
@@ -102,7 +103,10 @@ form .action{width:100%}
         <p class="hint" id="input-hint">4자리 배번호를 줄바꿈, 쉼표 또는 공백으로 구분해 붙여넣으세요.</p>
         <textarea id="numbers" aria-describedby="input-hint input-status" spellcheck="false" autocomplete="off" placeholder="0101&#10;0102&#10;0201"></textarea>
         <p id="input-status" class="input-status" aria-live="polite"></p>
-        <button id="start" class="action" type="submit" disabled>명단 등록</button>
+        <div class="entry-actions">
+          <button id="load-test-numbers" class="action secondary" type="button">테스트 번호 불러오기</button>
+          <button id="start" class="action" type="submit" disabled>명단 등록</button>
+        </div>
       </form>
     </section>
     <section id="live" class="live" aria-labelledby="prize" hidden>
@@ -692,6 +696,13 @@ function confirmBatchWinners(slots) {
 }
 
 el.numbers.addEventListener('input', updatePreview);
+el['load-test-numbers'].addEventListener('click', () => {
+  const testNumbers = Array.from({ length: 200 }, (_, index) => String(index + 1).padStart(4, '0')).join('\n');
+  const currentNumbers = el.numbers.value.trim();
+  if (currentNumbers && currentNumbers !== testNumbers && !confirm('입력한 배번호를 테스트 번호 0001~0200으로 바꿀까요?')) return;
+  el.numbers.value = testNumbers;
+  updatePreview();
+});
 el.entry.addEventListener('submit', event => {
   event.preventDefault();
   const { numbers, invalid } = parseNumbers(el.numbers.value);
